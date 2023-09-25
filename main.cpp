@@ -88,6 +88,8 @@ float g_leaf_ref_x_pos = 0.0f,
         g_leaf_x_pos, g_leaf_y_pos,
         g_leaf_angle = LEAF_ROT_START_ANGLE;
 
+float g_time_elapsed = 0.0f;
+
 glm::vec3 g_scale_vector = glm::vec3(10.0f, 10.0f, 1.0f);
 
 
@@ -236,8 +238,10 @@ void update()
         g_leaf_ref_x_pos = 0.0f;
         g_leaf_orbit_angle = LEAF_ORBIT_START_ANGLE;
         g_leaf_angle = LEAF_ROT_START_ANGLE;
+        g_time_elapsed = 0.0f;
     }
     
+    g_time_elapsed += delta_time;
 
     g_leaf_orbit_angle += LEAF_ORBIT_SPEED * delta_time;
     g_leaf_x_pos = LEAF_ORBIT_RADIUS * glm::cos(g_leaf_orbit_angle);
@@ -250,7 +254,8 @@ void update()
 
     g_leaf_model_matrix = glm::rotate(g_leaf_model_matrix, g_leaf_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
-    g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(0.4f, 0.4f, 1.0f));
+    //g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(0.4f, 0.4f, 1.0f));
+    g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(0.1f * glm::sin(g_time_elapsed) +  0.4f, 0.1f * glm::sin(g_time_elapsed) + 0.4f, 1.0f));
 }
 
 void draw_object(glm::mat4& object_model_matrix, GLuint& object_texture_id)
