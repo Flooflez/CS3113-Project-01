@@ -45,13 +45,16 @@ const float LEAF_FALL_SPEED = 0.5f;
 const float LEAF_ORBIT_SPEED = 1.0f; 
 const float LEAF_ROT_SPEED = 1.0f;
 const float LEAF_ORBIT_RADIUS = 0.5f;
-const float LEAF_CURVE_STEEPNESS = 2.0f;
+const float LEAF_CURVE_STEEPNESS = 2.5f;
 const float LEAF_START_X = -3.0f;
 const float LEAF_START_Y = -1.0f;
 const float LEAF_RESPAWN_THRESHOLD = 10.0f;
 const float LEAF_ORBIT_START_ANGLE = -135.0f;
 const float LEAF_ROT_START_ANGLE = 0.0f;
+const float LEAF_BASE_SIZE = 0.4f;
+const float LEAF_SCALE_SIZE = 0.1f;
 
+const float WIND_ROT_START_ANGLE = 315.0f;
 
 const int NUMBER_OF_TEXTURES = 1; // to be generated, that is
 const GLint LEVEL_OF_DETAIL = 0;  // base image level; Level n is the nth mipmap reduction image
@@ -61,7 +64,8 @@ const char BG_SPRITE_PATH[] = "assets\\back_drop.png",
             GROUND_SPRITE_PATH[] = "assets\\ground.png",
             LEAF_SPRITE_PATH[] = "assets\\leaf.png",
             TREE_SPRITE_PATH[] = "assets\\tree.png",
-            RAIN_SPRITE_PATH[] = "assets\\rain.png";
+            RAIN_SPRITE_PATH[] = "assets\\rain.png",
+            WIND_SPRITE_PATH[] = "assets\\wind.png";
 
 SDL_Window* g_display_window;
 bool g_game_is_running = true;
@@ -71,14 +75,14 @@ ShaderProgram g_shader_program;
 glm::mat4 view_matrix,g_projection_matrix,g_trans_matrix;
 
 // Model Matrices
-glm::mat4 g_bg_model_matrix, g_ground_model_matrix, g_leaf_model_matrix, g_tree_model_matrix, g_rain_1_model_matrix, g_rain_2_model_matrix;
+glm::mat4 g_bg_model_matrix, g_ground_model_matrix, g_leaf_model_matrix, g_tree_model_matrix, g_rain_1_model_matrix, g_rain_2_model_matrix, g_wind_model_matrix;
 
 // Leaf Path Reference Point
 glm::mat4 g_leaf_reference_matrix;
 
 float g_previous_ticks = 0.0f;
 
-GLuint g_bg_texture_id, g_ground_texture_id, g_leaf_texture_id, g_tree_texture_id, g_rain_1_texture_id, g_rain_2_texture_id;
+GLuint g_bg_texture_id, g_ground_texture_id, g_leaf_texture_id, g_tree_texture_id, g_rain_1_texture_id, g_rain_2_texture_id, g_wind_texture_id;
 
 float g_rain_1_y_pos = 0.0f,
         g_rain_2_y_pos = RAINFALL_OFFSET;
@@ -149,6 +153,7 @@ void initialise()
     g_rain_1_model_matrix = glm::mat4(1.0f);
     g_rain_2_model_matrix = glm::mat4(1.0f);
     g_tree_model_matrix = glm::mat4(1.0f);
+    g_wind_model_matrix = glm::mat4(1.0f);
 
     view_matrix = glm::mat4(1.0f);  // Defines the position (location and orientation) of the camera
     //g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);  // Defines the characteristics of your camera, such as clip planes, field of view, projection method etc.
@@ -169,6 +174,7 @@ void initialise()
     g_tree_texture_id = load_texture(TREE_SPRITE_PATH);
     g_rain_1_texture_id = load_texture(RAIN_SPRITE_PATH);
     g_rain_2_texture_id = load_texture(RAIN_SPRITE_PATH);
+    g_wind_texture_id = load_texture(WIND_SPRITE_PATH);
 
     // enable blending
     glEnable(GL_BLEND);
@@ -214,6 +220,8 @@ void update()
     g_leaf_reference_matrix = glm::mat4(1.0f);
     g_leaf_model_matrix = glm::mat4(1.0f);
 
+    g_wind_model_matrix = glm::mat4(1.0f);
+
     //Rainfall Movement
     g_rain_1_y_pos -= RAINFALL_SPEED * delta_time;
     if (g_rain_1_y_pos < -RAINFALL_OFFSET) {
@@ -230,7 +238,7 @@ void update()
     g_rain_1_model_matrix = glm::scale(g_rain_1_model_matrix, g_scale_vector);
     g_rain_2_model_matrix = glm::scale(g_rain_2_model_matrix, g_scale_vector);
 
-    //Leaf Movement
+    //Leaf and Wind Movement
     float leaf_ref_y_pos = LEAF_CURVE_STEEPNESS * glm::pow(glm::e<float>(), -g_leaf_ref_x_pos) - LEAF_CURVE_STEEPNESS; //calculate y position based on y = a*e^(-x) - a
 
     g_leaf_ref_x_pos += LEAF_FALL_SPEED * delta_time;
@@ -249,13 +257,18 @@ void update()
 
     g_leaf_angle += LEAF_ROT_SPEED * delta_time;
 
+    float wind_angle = glm::atan( -LEAF_CURVE_STEEPNESS * glm::pow(glm::e<float>(), -g_leaf_ref_x_pos)) + WIND_ROT_START_ANGLE;
+
     g_leaf_reference_matrix = glm::translate(g_leaf_reference_matrix, glm::vec3(g_leaf_ref_x_pos + LEAF_START_X, leaf_ref_y_pos + LEAF_START_Y, 0.0f));
     g_leaf_model_matrix = glm::translate(g_leaf_reference_matrix, glm::vec3(g_leaf_x_pos, g_leaf_y_pos, 0.0f));
 
     g_leaf_model_matrix = glm::rotate(g_leaf_model_matrix, g_leaf_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
-    //g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(0.4f, 0.4f, 1.0f));
-    g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(0.1f * glm::sin(g_time_elapsed) +  0.4f, 0.1f * glm::sin(g_time_elapsed) + 0.4f, 1.0f));
+    float leaf_size = LEAF_SCALE_SIZE * glm::sin(g_time_elapsed) + LEAF_BASE_SIZE;
+    g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(leaf_size, leaf_size, 1.0f));
+
+    g_wind_model_matrix = glm::translate(g_wind_model_matrix, glm::vec3(g_leaf_ref_x_pos + LEAF_START_X, leaf_ref_y_pos + LEAF_START_Y, 0.0f));
+    g_wind_model_matrix = glm::rotate(g_wind_model_matrix, wind_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void draw_object(glm::mat4& object_model_matrix, GLuint& object_texture_id)
@@ -289,6 +302,7 @@ void render() {
     // Bind textures
     draw_object(g_bg_model_matrix, g_bg_texture_id);
 
+    draw_object(g_wind_model_matrix, g_wind_texture_id);
     draw_object(g_leaf_model_matrix, g_leaf_texture_id);
     draw_object(g_tree_model_matrix, g_tree_texture_id);
     
