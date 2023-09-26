@@ -82,7 +82,7 @@ glm::mat4 g_leaf_reference_matrix;
 
 float g_previous_ticks = 0.0f;
 
-GLuint g_bg_texture_id, g_ground_texture_id, g_leaf_texture_id, g_tree_texture_id, g_rain_1_texture_id, g_rain_2_texture_id, g_wind_texture_id;
+GLuint g_bg_texture_id, g_ground_texture_id, g_leaf_texture_id, g_tree_texture_id, g_rain_texture_id, g_wind_texture_id;
 
 float g_rain_1_y_pos = 0.0f,
         g_rain_2_y_pos = RAINFALL_OFFSET;
@@ -172,8 +172,7 @@ void initialise()
     g_ground_texture_id = load_texture(GROUND_SPRITE_PATH);
     g_leaf_texture_id = load_texture(LEAF_SPRITE_PATH);
     g_tree_texture_id = load_texture(TREE_SPRITE_PATH);
-    g_rain_1_texture_id = load_texture(RAIN_SPRITE_PATH);
-    g_rain_2_texture_id = load_texture(RAIN_SPRITE_PATH);
+    g_rain_texture_id = load_texture(RAIN_SPRITE_PATH);
     g_wind_texture_id = load_texture(WIND_SPRITE_PATH);
 
     // enable blending
@@ -269,6 +268,7 @@ void update()
 
     g_wind_model_matrix = glm::translate(g_wind_model_matrix, glm::vec3(g_leaf_ref_x_pos + LEAF_START_X, leaf_ref_y_pos + LEAF_START_Y, 0.0f));
     g_wind_model_matrix = glm::rotate(g_wind_model_matrix, wind_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+    g_wind_model_matrix = glm::scale(g_wind_model_matrix, glm::vec3(0.7f, 0.7f, 1.0f));
 }
 
 void draw_object(glm::mat4& object_model_matrix, GLuint& object_texture_id)
@@ -306,8 +306,8 @@ void render() {
     draw_object(g_leaf_model_matrix, g_leaf_texture_id);
     draw_object(g_tree_model_matrix, g_tree_texture_id);
     
-    draw_object(g_rain_1_model_matrix, g_rain_1_texture_id);
-    draw_object(g_rain_2_model_matrix, g_rain_2_texture_id);
+    draw_object(g_rain_1_model_matrix, g_rain_texture_id);
+    draw_object(g_rain_2_model_matrix, g_rain_texture_id);
 
     draw_object(g_ground_model_matrix, g_ground_texture_id);
 
