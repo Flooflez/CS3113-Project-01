@@ -256,14 +256,14 @@ void update()
 
     g_leaf_angle += LEAF_ROT_SPEED * delta_time;
 
-    float wind_angle = glm::atan( -LEAF_CURVE_STEEPNESS * glm::pow(glm::e<float>(), -g_leaf_ref_x_pos)) + WIND_ROT_START_ANGLE;
+    float wind_angle = glm::atan( -LEAF_CURVE_STEEPNESS * glm::pow(glm::e<float>(), -g_leaf_ref_x_pos)) + WIND_ROT_START_ANGLE; //based on derivitave of equation
 
     g_leaf_reference_matrix = glm::translate(g_leaf_reference_matrix, glm::vec3(g_leaf_ref_x_pos + LEAF_START_X, leaf_ref_y_pos + LEAF_START_Y, 0.0f));
     g_leaf_model_matrix = glm::translate(g_leaf_reference_matrix, glm::vec3(g_leaf_x_pos, g_leaf_y_pos, 0.0f));
 
     g_leaf_model_matrix = glm::rotate(g_leaf_model_matrix, g_leaf_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
-    float leaf_size = LEAF_SCALE_SIZE * glm::sin(g_time_elapsed) + LEAF_BASE_SIZE;
+    float leaf_size = LEAF_SCALE_SIZE * glm::sin(g_time_elapsed) + LEAF_BASE_SIZE; //oscilating scale using sine 
     g_leaf_model_matrix = glm::scale(g_leaf_model_matrix, glm::vec3(leaf_size, leaf_size, 1.0f));
 
     g_wind_model_matrix = glm::translate(g_wind_model_matrix, glm::vec3(g_leaf_ref_x_pos + LEAF_START_X, leaf_ref_y_pos + LEAF_START_Y, 0.0f));
