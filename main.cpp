@@ -55,14 +55,14 @@ const float LEAF_FALL_SPEED = 0.5f;
 const float LEAF_ORBIT_SPEED = 1.0f; 
 const float LEAF_ROT_SPEED = 1.0f;
 const float LEAF_ORBIT_RADIUS = 0.5f;
-const float LEAF_CURVE_STEEPNESS = 2.5f;
+const float LEAF_CURVE_STEEPNESS = 2.3f;
 const float LEAF_START_X = -3.0f;
 const float LEAF_START_Y = -1.0f;
-const float LEAF_RESPAWN_THRESHOLD = 10.0f;
+const float LEAF_RESPAWN_THRESHOLD = 8.0f;
 const float LEAF_ORBIT_START_ANGLE = -135.0f;
 const float LEAF_ROT_START_ANGLE = 0.0f;
-const float LEAF_BASE_SIZE = 0.4f;
-const float LEAF_SCALE_SIZE = 0.1f;
+const float LEAF_BASE_SIZE = 0.5f;
+const float LEAF_SCALE_SIZE = 0.2f;
 
 const float WIND_ROT_START_ANGLE = 315.0f;
 
@@ -278,7 +278,7 @@ void update()
 
     g_wind_model_matrix = glm::translate(g_wind_model_matrix, glm::vec3(g_leaf_ref_x_pos + LEAF_START_X, leaf_ref_y_pos + LEAF_START_Y, 0.0f));
     g_wind_model_matrix = glm::rotate(g_wind_model_matrix, wind_angle, glm::vec3(0.0f, 0.0f, 1.0f));
-    g_wind_model_matrix = glm::scale(g_wind_model_matrix, glm::vec3(0.7f, 0.7f, 1.0f));
+    //g_wind_model_matrix = glm::scale(g_wind_model_matrix, glm::vec3(0.7f, 0.7f, 1.0f));
 }
 
 void draw_object(glm::mat4& object_model_matrix, GLuint& object_texture_id)
